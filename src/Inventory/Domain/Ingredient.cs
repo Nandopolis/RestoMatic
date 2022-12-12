@@ -1,4 +1,5 @@
-namespace RestoMatic.Inventory.Domain {
+namespace RestoMatic.Inventory.Domain
+{
     public class Ingredient
     {
         public string Name { get; set; }

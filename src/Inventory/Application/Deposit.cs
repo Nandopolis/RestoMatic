@@ -4,30 +4,42 @@ namespace RestoMatic.Inventory.Application
 {
     public class Deposit
     {
-        string restaurantId;
+        string _restaurantId;
 
-        List<StoredIngredient> inventory = new List<StoredIngredient>();
-        
-        public Deposit(string restaurantId)
+        InventoryRepositoryInterface _inventoryRepository;
+
+        public Deposit(string restaurantId, InventoryRepositoryInterface inventoryRepository)
         {
-            this.restaurantId = restaurantId;
+            _restaurantId = restaurantId;
+            _inventoryRepository = inventoryRepository;
         }
 
         public void Store(Ingredient ingredient, double quantity, string unit)
         {
-            StoredIngredient? storedIngredient;
-            storedIngredient = inventory.Find(item => item.Ingredient.Name == ingredient.Name);
+            StoredIngredient? storedIngredient =
+                _inventoryRepository.FindStoredIngredient(ingredient, _restaurantId);
             if (storedIngredient == null)
             {
                 storedIngredient = new StoredIngredient(ingredient, 0.0, unit);
-                inventory.Add(storedIngredient);
             }
             storedIngredient.Add(quantity, unit);
+            _inventoryRepository.Update(storedIngredient, _restaurantId);
         }
 
-        public bool HasIngredient(Ingredient ingredient)
+        public void Withdraw(Ingredient ingredient, double quantity, string unit)
         {
-            return inventory.Exists(item => item.Ingredient.Name == ingredient.Name);
+            var storedIngredient = _inventoryRepository.FindStoredIngredient(ingredient, _restaurantId);
+            if (storedIngredient == null)
+            {
+                throw new InsufficientIngredientException(ingredient);
+            }
+            storedIngredient.Substract(quantity, unit);
+            _inventoryRepository.Update(storedIngredient, _restaurantId);
+        }
+
+        public StoredIngredient? GetIngredientDetails(Ingredient ingredient)
+        {
+            return _inventoryRepository.FindStoredIngredient(ingredient, _restaurantId);
         }
     }
 }

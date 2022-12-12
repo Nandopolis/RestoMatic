@@ -1,4 +1,5 @@
-namespace RestoMatic.Inventory.Domain {
+namespace RestoMatic.Inventory.Domain
+{
     public class StoredIngredient
     {
         public Ingredient Ingredient { get; set; }
@@ -20,6 +21,19 @@ namespace RestoMatic.Inventory.Domain {
                 throw new ArgumentException();
             }
             Quantity += quantity;
+        }
+
+        public void Substract(double quantity, string unit)
+        {
+            if (unit != Unit)
+            {
+                throw new ArgumentException();
+            }
+            if (Quantity < quantity)
+            {
+                throw new InsufficientIngredientException(Ingredient);
+            }
+            Quantity -= quantity;
         }
     }
 }
